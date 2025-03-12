@@ -7,7 +7,7 @@ from pathlib import Path
 
 import requests
 import heroku3
-import CloudFlare
+from cloudflare import Cloudflare
 
 class HerokuReviewAppCreator:
     def __init__(self, config_path=None):
@@ -213,7 +213,7 @@ class HerokuReviewAppCreator:
             
         print(f"Configurando subdominio en Cloudflare...")
         try:
-            cf = CloudFlare.CloudFlare(email=self.cf_email, token=self.cf_api_key)
+            cf = Cloudflare(email=self.cf_email, token=self.cf_api_key)
             
             # Crear un subdominio basado en el nombre de la app
             subdomain = f"{app_name}.{self.cf_domain}"

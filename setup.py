@@ -6,12 +6,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="heroku-review-apps",
     version="0.1.0",
-    author="Tu Nombre",
-    author_email="tu@email.com",
+    author="mpachas",
     description="Herramienta para crear y gestionar review apps en Heroku con integración de GitHub y Cloudflare",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/usuario/heroku-review-apps",
+    url="https://github.com/mpachas/heroku-review-apps",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
