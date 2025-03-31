@@ -6,7 +6,7 @@ import configparser
 from pathlib import Path
 
 import requests
-import heroku3
+from heroku_client import HerokuClient  # Updated import
 from cloudflare import Cloudflare
 
 class HerokuReviewAppCreator:
@@ -97,7 +97,8 @@ class HerokuReviewAppCreator:
         if not self.heroku_api_key:
             print("Error: No se ha configurado la API key de Heroku.")
             sys.exit(1)
-        self.heroku_client = heroku3.from_key(self.heroku_api_key)
+        self.heroku_client = HerokuClient(self.heroku_api_key)  # Updated client initialization
+        # TODO: Comprobar que la API key es válida: de momento se me ocurre pedir el rate limit o info de la cuenta para mostrar un mensaje de info si ok o salir con error sino.
         
     def get_branch_name(self):
         """Obtiene el nombre de la rama actual de git."""
@@ -146,9 +147,8 @@ class HerokuReviewAppCreator:
             # Configurar buildpacks
             if self.buildpacks and self.buildpacks[0]:
                 print("Configurando buildpacks...")
-                for buildpack in self.buildpacks:
-                    if buildpack:
-                        app.add_buildpack(buildpack)
+                buildpacks_list = [{'buildpack': bp} for bp in self.buildpacks if bp]
+                self.heroku_client.buildpacks.update(app_id_or_name=app.id, buildpacks=buildpacks_list)
                 print("✅ Buildpacks configurados")
             
             # Configurar addons
@@ -157,7 +157,10 @@ class HerokuReviewAppCreator:
                 for addon in self.addons:
                     if addon:
                         try:
-                            app.add_addon(addon)
+                            # TODO: Creo que queremos, además del addon, los ATTACHMENTS, para poder diferenciar, por ejemplo, una db de otra
+                            # TODO: Si no se puede en la misma llamada, habrá que hacerlo secuencialmente para no perder la info de los attachments
+                            # TODO; El cliente permite un diccionario opcional de options como tercer argumento 
+                            self.heroku_client.addons.create(app.id, addon)
                             print(f"  ✅ Addon añadido: {addon}")
                         except Exception as e:
                             print(f"  ❌ Error al añadir addon {addon}: {str(e)}")
@@ -165,7 +168,7 @@ class HerokuReviewAppCreator:
             # Configurar variables de entorno
             if self.env_vars:
                 print("Configurando variables de entorno...")
-                app.update_config(self.env_vars)
+                self.heroku_client.config.update(app.id, self.env_vars)
                 print("✅ Variables de entorno configuradas")
             
             # Añadir al pipeline si se especificó uno

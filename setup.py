@@ -19,9 +19,9 @@ setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        "heroku3",
         "requests",
         "python-cloudflare",
+        "git+https://github.com/mpachas/heroku-python-client.git",
     ],
     entry_points={
         "console_scripts": [
